@@ -109,11 +109,42 @@ abstract class Application
             $this->runAction($controller, $action, $params);
         } catch (HttpNotFoundException $e) {
             $this->render404Page($e);
-        } catch (UnauthorizedActionEcexption $e) {
+        } catch (UnauthorizedActionException $e) {
             list($controller, $action) = $this->login_action;
             $this->runAction($controller, $action);
         }
         $this->response->send();
+    }
+
+    public function runAction($controller_name, $action, $params = [])
+    {
+        $controller_class = ucfirst($controller_name) . 'Controller';
+
+        $controller = $this->findController($controller_class);
+        if ($controller === false) {
+            throw new HttpNotFoundException($controller_class . ' controller is not found.');
+        }
+
+        $content = $controller->run($action, $params);
+        $this->response->setContent($content);
+    }
+
+    protected function findController($controller_class)
+    {
+        if (!class_exists($controller_class)) {
+            $controller_file = $this->getControllerDir() . '/' . $controller_class . '.php';
+            if (!is_readable($controller_file)) {
+                return false;
+            } else {
+                require_once $controller_file;
+
+                if (!class_exists($controller_class)) {
+                    return false;
+                }
+            }
+        }
+
+        return new $controller_class($this);
     }
 
     protected function render404Page($e)
@@ -133,38 +164,6 @@ abstract class Application
 </head>
 </html>
 EOF
-);
-    }
-
-    public function runAction($controller_name, $action, $params = [])
-    {
-        $controller_class = ucfirst($controller_name) . 'Controller';
-
-        $controller = $this->findController($controller_class);
-        if ($controller === false) {
-            throw new HttpNotFoundException($controller_class . ' controller is not found');
-        }
-
-        $content = $controller->run($action, $params);
-        $this->response->setContent($content);
-    }
-
-    protected function findController($controller_class)
-    {
-        if (!class_exists($controller_class)) {
-            $controller_file = $this->getControllerDir() . '/' . $controller_class . '.php';
-        }
-
-        if (!is_readable($controller_file)) {
-            return false;
-        } else {
-            require_once $controller_file;
-
-            if (!class_exists($controller_class)) {
-                return false;
-            }
-        }
-
-        return new $controller_class($this);
+        );
     }
 }

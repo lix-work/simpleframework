@@ -7,7 +7,7 @@ class DbManager
     protected $repository_connection_map = [];
     protected $repositories = [];
 
-    public function connetct($name, $params)
+    public function connect($name, $params)
     {
         $params = array_merge(
             [
@@ -56,7 +56,7 @@ class DbManager
 
     public function get($repository_name)
     {
-        if (isset($this->repositories[$repository_name])) {
+        if (!isset($this->repositories[$repository_name])) {
             $repository_class = $repository_name . 'Repository';
             $con = $this->getConnectionForRepository($repository_name);
 

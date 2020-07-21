@@ -33,8 +33,8 @@ abstract class Controller
             $this->forward404();
         }
 
-        if ($this->needsAuthenticationException($action) && !$this->session->isAuthenticated()) {
-            throw new UnauthorizedActionEcexption();
+        if ($this->needsAuthentication($action) && !$this->session->isAuthenticated()) {
+            throw new UnauthorizedActionException();
         }
 
         $content = $this->$action_method($params);
@@ -42,7 +42,7 @@ abstract class Controller
         return $content;
     }
 
-    protected function needsAuthenticationException($action)
+    protected function needsAuthentication($action)
     {
         if ($this->auth_actions === true || (is_array($this->auth_actions) && in_array($action, $this->auth_actions))) {
             return true;

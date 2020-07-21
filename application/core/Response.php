@@ -6,13 +6,13 @@ class Response
     protected $content;
     protected $status_code = 200;
     protected $status_text = 'OK';
-    protected $httpd_headers = [];
+    protected $http_headers = [];
 
     public function send()
     {
         header('HTTP/1.1 ' . $this->status_code . ' ' . $this->status_text);
 
-        foreach ($this->httpd_headers as $name => $value){
+        foreach ($this->http_headers as $name => $value){
             header($name . ': ' . $value);
         }
 
@@ -32,6 +32,6 @@ class Response
 
     public function setHttpHeader($name , $value)
     {
-        $this->httpd_headers[$name] = $value;
+        $this->http_headers[$name] = $value;
     }
 }
